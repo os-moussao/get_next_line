@@ -1,77 +1,78 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: omoussao <marvin@42.fr>                    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/11/05 09:32:37 by omoussao          #+#    #+#             */
-/*   Updated: 2021/11/05 10:52:43 by omoussao         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
+
+#include "get_next_line.h"
 #include <stdio.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <fcntl.h>
 #include <string.h>
+#include <bsd/string.h>
 
-static char	*get_line(int fd, size_t offset)
+#define BUFFER_SIZE 42
+
+size_t	file_append(char **file, size_t len, char *buffer, size_t last)
 {
-	char	buffer[1000] = {0};
+	if (!*file)
+	{
+		*file = malloc(last + 1);
+		strlcat(*file, buffer, last + 1);
+		return (last);
+	}
+	*file = realloc(*file, len + last + 1);
+	memmove(file + len, buffer, last);
+	file[len + last] = 0;
+	return (len + last);
+}
+
+
+char	*get_line(char *file, size_t *off)
+{
+	size_t	nxt;
+	size_t	start;
+	size_t	count = 0;
 	char	*line;
-	size_t	i;
-	size_t	lines = 0;
-	char	c = 0;
 
-	while (lines < offset)
-	{
-		while (c != 10)
-			read(fd, &c, 1);
-		lines++;
-		c = 0;
-	}
-
-	i = 0;
-	while (read(fd, &buffer[i], 1))
-	{
-		if (buffer[i++] == 10 || !buffer[i])
-			break ;
-	}
-
-	if (i == 0)
-		return (NULL);
-
-	line = calloc(i + 1, 1);
-	if (!line)
-		return (NULL);
-	strlcpy(line, buffer, i + 1);
+	nxt = *off;
+	start = nxt;
+	if (nxt)
+		nxt++, start++;
+	while (file[nxt] && file[nxt] != 10)
+		nxt++;
+	line = malloc(nxt - start + 1);
+	memmove(line, file + start, nxt - start + 1);
 	return (line);
 }
 
 char	*get_next_line(int fd)
 {
-	static size_t	offset;
 	char			*line;
+	char			*buffer;
+	static char		*file;
+	static size_t	line_offset;
+	size_t			last;
+	size_t			len;
 
-	offset = 0;
-	line = get_line(fd, offset++);
+	if (fd == -1 || BUFFER_SIZE <= 0)
+		return (NULL);
+
+	buffer = malloc(BUFFER_SIZE + 1);
+	buffer[BUFFER_SIZE] = 0;
+	while ((last = read(fd, buffer, BUFFER_SIZE)))
+		len += file_append(&file, len, buffer, last);
+	free(buffer);
+	line = get_line(file, &line_offset);
 	return (line);
 }
 
+
 int	main(void)
 {
+	int	fd = open("get_next_line.h", O_RDONLY);
 	char	*line;
-	int		fd = open("file.txt", O_RDONLY);
-	if (fd  == -1)
-	{
-		printf("open error\n");
-		return (1);
-	}
 
-	while ((line = get_next_line(fd)))
+	while (line = get_next_line(fd))
 	{
-		printf("%s", line);
+		printf("%s\n", line);
 		free(line);
 	}
 }
