@@ -29,7 +29,6 @@ char	*get_line(char *file, size_t *off)
 {
 	size_t	nxt;
 	size_t	start;
-	size_t	count = 0;
 	char	*line;
 
 	nxt = *off;
@@ -40,6 +39,7 @@ char	*get_line(char *file, size_t *off)
 		nxt++;
 	line = malloc(nxt - start + 1);
 	memmove(line, file + start, nxt - start + 1);
+	(*off) = nxt;
 	return (line);
 }
 
@@ -56,23 +56,22 @@ char	*get_next_line(int fd)
 		return (NULL);
 
 	buffer = malloc(BUFFER_SIZE + 1);
+	if (!buffer)
+		return (NULL);
 	buffer[BUFFER_SIZE] = 0;
-	while ((last = read(fd, buffer, BUFFER_SIZE)))
-		len += file_append(&file, len, buffer, last);
+
+	if (!file)
+	{
+		len = 0;
+		while ((last = read(fd, buffer, BUFFER_SIZE)))
+		{
+			len += file_append(&file, len, buffer, last);
+			printf("last = %zu	len = %zu\n", last, len);
+		}
+	}
 	free(buffer);
 	line = get_line(file, &line_offset);
 	return (line);
 }
 
 
-int	main(void)
-{
-	int	fd = open("get_next_line.h", O_RDONLY);
-	char	*line;
-
-	while (line = get_next_line(fd))
-	{
-		printf("%s\n", line);
-		free(line);
-	}
-}
