@@ -6,7 +6,7 @@
 /*   By: omoussao <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/06 15:59:45 by omoussao          #+#    #+#             */
-/*   Updated: 2021/11/06 21:58:53 by omoussao         ###   ########.fr       */
+/*   Updated: 2021/11/06 22:15:26 by omoussao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,12 @@ size_t	get_eol(char *buff)
 	return (i);
 }
 
+/*
 char	*ft_join_lines(t_list *list)
 {
 
 }
+*/
 
 char	*get_next_line(int fd)
 {
@@ -51,6 +53,13 @@ char	*get_next_line(int fd)
 		{
 			// join list
 			// return (line)
+			tmp = ft_strjoin(line, buffer);
+			free(line);
+			line = tmp;
+			tmp = save + get_eol(save);
+			free(save);
+			save = tmp;
+			return (line);
 		}
 	}
 	while ((last = read(fd, buffer, BUFFER_SIZE)))
@@ -59,13 +68,20 @@ char	*get_next_line(int fd)
 		index = get_eol(buffer);
 		if (!last || get_eol[buffer] == '\n')
 		{
-			ft_lstadd_back(&line, ft_substr(buffer, index));
-			
-			// update save
-			// return (line);
+			tmp = ft_strjoin(line, buffer);
+			free(line);
+			line = tmp;
+			tmp = save + get_eol(save);
+			free(save);
+			save = tmp;
+			return (line);
 		}
 		else
-			ft_lstadd_back(&line, buffer);
+		{
+			tmp = ft_strjoin(line, buffer);
+			free(line);
+			line = tmp;
+		}
 	}
 	free(buffer);
 	return (line);
