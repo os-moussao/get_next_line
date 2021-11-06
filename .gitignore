@@ -1,4 +1,5 @@
+libft/
 mmain.c
 a.out
-*.txt
+*file*
 *.sh
