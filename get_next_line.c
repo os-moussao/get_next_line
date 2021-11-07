@@ -6,7 +6,7 @@
 /*   By: omoussao <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/06 15:59:45 by omoussao          #+#    #+#             */
-/*   Updated: 2021/11/07 18:55:52 by omoussao         ###   ########.fr       */
+/*   Updated: 2021/11/07 19:36:06 by omoussao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,9 +50,17 @@ char	*get_next_line(int fd)
 			line = ft_strnjoin("", save, index + 1);
 			
 			// update save
-			tmp = ft_strnjoin("", save + index + 1, BUFFER_SIZE + 1);
-			free(save);
-			save = tmp;
+			if (save[index + 1])
+			{
+				tmp = ft_strnjoin("", save + index + 1, BUFFER_SIZE + 1);
+				free(save);
+				save = tmp;
+			}
+			else
+			{
+				free(save);
+				save = NULL;
+			}
 
 			free(buffer);
 			return (line);
@@ -81,7 +89,13 @@ char	*get_next_line(int fd)
 		{
 			get_line(&line, buffer, index + 1);
 
-			save = ft_strnjoin("", buffer + index + 1, BUFFER_SIZE);
+			if (buffer[index + 1])
+				save = ft_strnjoin("", buffer + index + 1, BUFFER_SIZE);
+			else if (save)
+			{
+				free(save);
+				save = NULL;
+			}
 
 			free(buffer);
 			return (line);
@@ -91,7 +105,10 @@ char	*get_next_line(int fd)
 		last = read(fd, buffer, BUFFER_SIZE);
 	}
 	if (save)
+	{
 		free(save);
+		save = NULL;
+	}
 	free(buffer);
 	return (line);
 }
