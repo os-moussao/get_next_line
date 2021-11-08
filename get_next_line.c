@@ -6,11 +6,34 @@
 /*   By: omoussao <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/06 15:59:45 by omoussao          #+#    #+#             */
-/*   Updated: 2021/11/08 21:07:19 by omoussao         ###   ########.fr       */
+/*   Updated: 2021/11/08 21:23:42 by omoussao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+
+char	*ft_strnjoin(char *s1, char *s2, size_t n)
+{
+	char	*res;
+	size_t	len;
+	size_t	len1;
+	size_t	len2;
+	size_t	i;
+
+	len1 = ft_strlen(s1);
+	len2 = ft_strlen(s2);
+	len = len1;
+	len += (len2 < n) * len2 + (n <= len2) * n;
+	res = malloc(len + 1);
+	res[len] = 0;
+	i = -1;
+	while (++i < len && i < len1)
+		res[i] = s1[i];
+	i--;
+	while (++i < len)
+		res[i] = s2[i - len1];
+	return (res);
+}
 
 void	get_line(char **line, char *buffer, size_t last)
 {
