@@ -6,13 +6,24 @@
 /*   By: omoussao <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/06 15:59:45 by omoussao          #+#    #+#             */
-/*   Updated: 2021/11/08 21:23:42 by omoussao         ###   ########.fr       */
+/*   Updated: 2021/11/08 21:53:42 by omoussao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*ft_strnjoin(char *s1, char *s2, size_t n)
+size_t	get_eol(char *buff)
+{
+	size_t	i;
+
+	i = 0;
+	while (buff[i])
+		if (buff[i++] == '\n')
+			return (i - 1);
+	return (i);
+}
+
+void	ft_strnjoin(char **to_fill, char *s1, char *s2, size_t n)
 {
 	char	*res;
 	size_t	len;
@@ -20,6 +31,8 @@ char	*ft_strnjoin(char *s1, char *s2, size_t n)
 	size_t	len2;
 	size_t	i;
 
+	if (!*to_fill)
+		s1 = "";
 	len1 = ft_strlen(s1);
 	len2 = ft_strlen(s2);
 	len = len1;
@@ -32,38 +45,21 @@ char	*ft_strnjoin(char *s1, char *s2, size_t n)
 	i--;
 	while (++i < len)
 		res[i] = s2[i - len1];
-	return (res);
-}
-
-void	get_line(char **line, char *buffer, size_t last)
-{
-	char	*tmp;
-
-	if (*line)
-	{
-		tmp = ft_strnjoin(*line, buffer, last);
-		free(*line);
-		*line = tmp;
-	}
-	else
-		*line = ft_strnjoin("", buffer, last);
+	if (*to_fill)
+		free(*to_fill);
+	*to_fill = res;
 }
 
 int	handle_filled_save(char **line, char **save)
 {
 	size_t	index;
-	char	*tmp;
 
 	index = get_eol(*save);
 	if ((*save)[index] == '\n')
 	{
-		*line = ft_strnjoin("", *save, index + 1);
+		ft_strnjoin(line, "", *save, index + 1);
 		if ((*save)[index + 1])
-		{
-			tmp = ft_strnjoin("", *save + index + 1, BUFFER_SIZE + 1);
-			free(*save);
-			*save = tmp;
-		}
+			ft_strnjoin(save, "", *save + index + 1, BUFFER_SIZE + 1);
 		else
 		{
 			free(*save);
@@ -88,9 +84,9 @@ int	read_file(int fd, char *buffer, char **line, char **save)
 		index = get_eol(buffer);
 		if (buffer[index] == '\n')
 		{
-			get_line(line, buffer, index + 1);
+			ft_strnjoin(line, *line, buffer, index + 1);
 			if (buffer[index + 1] != 0)
-				*save = ft_strnjoin("", buffer + index + 1, BUFFER_SIZE);
+				ft_strnjoin(save, "", buffer + index + 1, BUFFER_SIZE);
 			else if (save)
 			{
 				free(*save);
@@ -99,7 +95,7 @@ int	read_file(int fd, char *buffer, char **line, char **save)
 			return (1);
 		}
 		else
-			get_line(line, buffer, BUFFER_SIZE + 1);
+			ft_strnjoin(line, *line, buffer, BUFFER_SIZE + 1);
 		last = read(fd, buffer, BUFFER_SIZE);
 	}
 	return (0);
