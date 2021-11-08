@@ -6,7 +6,7 @@
 /*   By: omoussao <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/06 15:59:45 by omoussao          #+#    #+#             */
-/*   Updated: 2021/11/07 21:48:35 by omoussao         ###   ########.fr       */
+/*   Updated: 2021/11/08 15:40:04 by omoussao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,12 +48,40 @@ int	handle_filled_save(char **line, char **save)
 		}
 		return (1);
 	}
-	else
-	{
-		*line = *save;
-		*save = NULL;
+	*line = *save;
+	*save = NULL;
+	return (0);
+}
+
+int	read_file(int fd, char *buffer, char **line, char **save)
+{
+	size_t	index;
+	ssize_t	last;
+
+	last = read(fd, buffer, BUFFER_SIZE);
+	if (last < 0)
 		return (0);
+	while (last > 0)
+	{
+		buffer[last] = 0;
+		index = get_eol(buffer);
+		if (buffer[index] == '\n')
+		{
+			get_line(line, buffer, index + 1);
+			if (buffer[index + 1] != 0)
+				*save = ft_strnjoin("", buffer + index + 1, BUFFER_SIZE);
+			else if (save)
+			{
+				free(*save);
+				*save = NULL;
+			}
+			return (1);
+		}
+		else
+			get_line(line, buffer, BUFFER_SIZE + 1);
+		last = read(fd, buffer, BUFFER_SIZE);
 	}
+	return (0);
 }
 
 char	*get_next_line(int fd)
@@ -61,8 +89,6 @@ char	*get_next_line(int fd)
 	static char	*save;
 	char		*line;
 	char		*buffer;
-	ssize_t		last;
-	size_t		index;
 
 	line = NULL;
 	if (fd < 0 || BUFFER_SIZE <= 0)
@@ -70,37 +96,12 @@ char	*get_next_line(int fd)
 	if (save && *save)
 		if (handle_filled_save(&line, &save))
 			return (line);
-
-
-
 	buffer = malloc(BUFFER_SIZE + 1);
 	buffer[BUFFER_SIZE] = 0;
-	last = read(fd, buffer, BUFFER_SIZE);
-	if (last < 0)
+	if (read_file(fd, buffer, &line, &save))
 	{
 		free(buffer);
-		return (NULL);
-	}
-	while (last > 0)
-	{
-		buffer[last] = 0;
-		index = get_eol(buffer);
-		if (buffer[index] == '\n')
-		{
-			get_line(&line, buffer, index + 1);
-			if (buffer[index + 1])
-				save = ft_strnjoin("", buffer + index + 1, BUFFER_SIZE);
-			else if (save)
-			{
-				free(save);
-				save = NULL;
-			}
-			free(buffer);
-			return (line);
-		}
-		else
-			get_line(&line, buffer, BUFFER_SIZE + 1);
-		last = read(fd, buffer, BUFFER_SIZE);
+		return (line);
 	}
 	if (save)
 	{
