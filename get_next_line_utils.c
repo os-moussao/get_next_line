@@ -6,7 +6,7 @@
 /*   By: omoussao <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/07 10:56:39 by omoussao          #+#    #+#             */
-/*   Updated: 2021/11/07 21:30:55 by omoussao         ###   ########.fr       */
+/*   Updated: 2021/11/08 20:55:46 by omoussao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,6 @@ size_t	get_eol(char *buff)
 	return (i);
 }
 
-// could be deleted
 size_t	ft_strlen(const char *str)
 {
 	size_t	len;

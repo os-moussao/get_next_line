@@ -6,7 +6,7 @@
 /*   By: omoussao <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/06 15:59:45 by omoussao          #+#    #+#             */
-/*   Updated: 2021/11/08 15:40:04 by omoussao         ###   ########.fr       */
+/*   Updated: 2021/11/08 21:07:19 by omoussao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,8 +59,6 @@ int	read_file(int fd, char *buffer, char **line, char **save)
 	ssize_t	last;
 
 	last = read(fd, buffer, BUFFER_SIZE);
-	if (last < 0)
-		return (0);
 	while (last > 0)
 	{
 		buffer[last] = 0;
@@ -98,12 +96,7 @@ char	*get_next_line(int fd)
 			return (line);
 	buffer = malloc(BUFFER_SIZE + 1);
 	buffer[BUFFER_SIZE] = 0;
-	if (read_file(fd, buffer, &line, &save))
-	{
-		free(buffer);
-		return (line);
-	}
-	if (save)
+	if (!read_file(fd, buffer, &line, &save) && save)
 	{
 		free(save);
 		save = NULL;
