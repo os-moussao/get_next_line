@@ -6,7 +6,7 @@
 /*   By: omoussao <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/06 15:59:45 by omoussao          #+#    #+#             */
-/*   Updated: 2021/11/09 13:33:20 by omoussao         ###   ########.fr       */
+/*   Updated: 2021/11/09 21:01:58 by omoussao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,11 +117,7 @@ char	*get_next_line(int fd)
 			return (line);
 	buffer = malloc(BUFFER_SIZE + 1);
 	buffer[BUFFER_SIZE] = 0;
-	if (!read_file(fd, buffer, &line, &save) && save)
-	{
-		free(save);
-		save = NULL;
-	}
+	read_file(fd, buffer, &line, &save);
 	free(buffer);
 	return (line);
 }
