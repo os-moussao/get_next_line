@@ -6,7 +6,7 @@
 /*   By: omoussao <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/06 15:59:45 by omoussao          #+#    #+#             */
-/*   Updated: 2021/11/08 21:53:42 by omoussao         ###   ########.fr       */
+/*   Updated: 2021/11/09 13:33:20 by omoussao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,14 +33,16 @@ void	ft_strnjoin(char **to_fill, char *s1, char *s2, size_t n)
 
 	if (!*to_fill)
 		s1 = "";
-	len1 = ft_strlen(s1);
-	len2 = ft_strlen(s2);
-	len = len1;
-	len += (len2 < n) * len2 + (n <= len2) * n;
-	res = malloc(len + 1);
+	len1 = 0;
+	while (s1[len1])
+		len1++;
+	len2 = 0;
+	while (s2[len2])
+		len2++;
+	res = malloc((len = len1 + (len2 < n) * len2 + (n <= len2) * n) + 1);
 	res[len] = 0;
 	i = -1;
-	while (++i < len && i < len1)
+	while (++i < len1)
 		res[i] = s1[i];
 	i--;
 	while (++i < len)
